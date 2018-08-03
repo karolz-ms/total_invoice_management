@@ -7,6 +7,7 @@ One should create an Application Insights resource and have its instrumentation 
 
 ## Configure deployment environment
 
+### Minikube
 If using minikube, switch to the built-in Docker daemon:
 ```
 eval $(minikube docker-env)
@@ -18,8 +19,9 @@ Pull latest fluentd sidecar image for sending logs to Application Insights
 docker pull atcdemo.azurecr.io/fluentdsidecar:latest
 ```
 
-If you are deploying to AKS, it's by default RBAC dsiabled. You can remove all RBAC related settings before deployment.
-If you created an AKS cluster with RBAC enabled, you need to install tiller through from the following command, [here](https://github.com/helm/helm/issues/3460#issuecomment-385992094) is the detailed discusssion. Otherwise, tiller won't be able to talk to the K8s API server.
+### AKS
+If you are deploying to AKS, it's by default RBAC dsiabled. You can remove all RBAC related settings before deployment.  
+If you created an AKS cluster with RBAC enabled, you need to install tiller following the commands below. [Here](https://github.com/helm/helm/blob/master/docs/rbac.md) is more detailed documentation. Otherwise, tiller won't be able to talk to the K8s API server.
 ```
 kubectl delete svc tiller-deploy -n kube-system
 kubectl -n kube-system delete deploy tiller-deploy
