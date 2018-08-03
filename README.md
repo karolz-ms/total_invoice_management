@@ -7,6 +7,7 @@ One should create an Application Insights resource and have its instrumentation 
 
 ## Configure deployment environment
 
+### Minikube
 If using minikube, switch to the built-in Docker daemon:
 ```
 eval $(minikube docker-env)
@@ -16,6 +17,18 @@ eval $(minikube docker-env)
 Pull latest fluentd sidecar image for sending logs to Application Insights
 ```
 docker pull atcdemo.azurecr.io/fluentdsidecar:latest
+```
+
+### AKS
+If you are deploying to AKS, it's by default RBAC dsiabled. You can remove all RBAC related settings before deployment.  
+If you created an AKS cluster with RBAC enabled, you need to install tiller following the commands below. [Here](https://github.com/helm/helm/blob/master/docs/rbac.md) is more detailed documentation. Otherwise, tiller won't be able to talk to the K8s API server.
+```
+kubectl delete svc tiller-deploy -n kube-system
+kubectl -n kube-system delete deploy tiller-deploy
+kubectl create serviceaccount --namespace kube-system tiller
+kubectl create clusterrolebinding tiller-cluster-rule --clusterrole=cluster-admin --serviceaccount=kube-system:tiller
+helm init --service-account tiller
+helm ls # does not return an error
 ```
 
 ## Build Docker images
@@ -33,9 +46,10 @@ cd ./kube
 helm install total_invoice --name total-invoice-rel  --set 'appinsights_instrumentationkey=<YOUR APP INSIGHS IKEY>'
 ```
 
-The default Kubernetes namespace to deploy into is `total-invoice`. 
-If a different namespace is desired, override the "namespace" value 
-(pass `--set 'namespace=other-namespace'` to `helm install`).
+NOTICE: Make sure the values are set correctly in values.yaml.  
+For example, the default Kubernetes namespace to deploy into is `total-invoice`.
+If a different namespace is desired, override the "namespace" value (pass `--set 'namespace=other-namespace'` to `helm install`).  
+Also make sure the images are pushed to the registry and can be pulled from your cluster.
 
 ## To learn what the entry URL is
 ```
